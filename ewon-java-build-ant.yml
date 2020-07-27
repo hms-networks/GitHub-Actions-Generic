@@ -41,6 +41,11 @@ jobs:
 
     - name: Configure Permissions of Temporary Classpath Folder (Ubuntu)
       run: chmod -R +rwx ./$TMP_CP_FOLDER
+      
+    - name: Checkout Project Submodules
+      uses: textbook/git-checkout-submodule-action@master
+      with:
+        remote: true
 
     - name: Build Java Files in /src and /libs with Target/Source of 1.4 (Ubuntu)
       run: javac -source 1.4 -target 1.4 -cp ./$TMP_CP_FOLDER/$ETK_LOCAL_FILE_NAME -d bin $(find $SRC_FOLDERS -name "*.java")
