@@ -41,7 +41,7 @@ jobs:
 
     - name: Configure Permissions of Temporary Classpath Folder (Ubuntu)
       run: chmod -R +rwx ./$TMP_CP_FOLDER
-      
+
     - name: Checkout Project Submodules
       uses: textbook/git-checkout-submodule-action@master
       with:
@@ -55,25 +55,25 @@ jobs:
 
     - name: Build Ewon Jar in Ant (Ubuntu)
       run: ant "buildjar" -noinput -buildfile build.xml
-    
+
     - name: Parse Ant Build File for Project Name (Ubuntu)
       run: |
         export PROJECTNAME=$(sed -n 's/<property name=\"ProjectName\"\ value=\"\(.*\)\"\/>/\1/p' build.xml | tr -d '[:space:]')
         echo "PROJECT_NAME=$PROJECTNAME" >> $GITHUB_ENV
-        
+
     - name: Get Current Time for Artifact Identification (Ubuntu)
       id: time
       uses: nanzm/get-time-action@v1.0
       with:
         timeZone: 0
         format: 'YYYY-MM-DD-HH-mm-ss'
-    
+
     - name: Upload Ewon Jar as Artifact (Ubuntu)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ github.event.repository.name }}-JAR-BUILD${{ steps.time.outputs.time }}UTC
         path: build/${{ env.PROJECT_NAME }}.jar
-        
+
     - name: Upload Ewon Jar Javadocs as Artifact (Ubuntu)
       uses: actions/upload-artifact@v2
       with:
