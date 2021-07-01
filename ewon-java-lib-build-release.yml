@@ -45,6 +45,7 @@ jobs:
           zip release -r $README_NAME $LICENSE_NAME $SRC_FOLDER $TMP_JAVADOC_FOLDER
 
       - name: Create Release
+        if: ${{ contains(github.ref,'alpha') != true && contains(github.ref,'beta') != true && contains(github.ref,'pre') != true }}
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -55,13 +56,38 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Create Pre-Release
+        if: ${{ contains(github.ref,'alpha') == true || contains(github.ref,'beta') == true || contains(github.ref,'pre') == true }}
+        id: create_pre_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Pre-Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+
       - name: Upload Release Asset
+        if: ${{ contains(github.ref,'alpha') != true && contains(github.ref,'beta') != true && contains(github.ref,'pre') != true }}
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release.zip
+          asset_name: ${{ github.event.repository.name }}-${{ github.ref }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Pre-Release Asset
+        if: ${{ contains(github.ref,'alpha') == true || contains(github.ref,'beta') == true || contains(github.ref,'pre') == true }}
+        id: upload-pre-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_pre_release.outputs.upload_url }}
           asset_path: ./release.zip
           asset_name: ${{ github.event.repository.name }}-${{ github.ref }}.zip
           asset_content_type: application/zip
